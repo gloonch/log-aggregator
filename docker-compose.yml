@@ -27,17 +27,16 @@ services:
     ports:
       - "9092:9092"
 
+  producer:
+    build:
+      context: .
+      dockerfile: producer/Dockerfile
+    depends_on:
+      - kafka
 
-#  producer:
-#    build:
-#      context: .
-#      dockerfile: producer/Dockerfile
-#    depends_on:
-#      - kafka
-#
-#  aggregator:
-#    build:
-#      context: .
-#      dockerfile: aggregator/Dockerfile
-#    depends_on:
-#      - kafka
+  aggregator:
+    build:
+      context: .
+      dockerfile: producer/Dockerfile
+    depends_on:
+      - kafka

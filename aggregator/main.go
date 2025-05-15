@@ -8,8 +8,8 @@ import (
 
 func main() {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"localhost:9092"},
-		Topic:   "logs",
+		Brokers: []string{"kafka:9092"},
+		Topic:   "market.ticks",
 		GroupID: "log-aggregator-group",
 	})
 	defer reader.Close()

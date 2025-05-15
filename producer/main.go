@@ -2,21 +2,30 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"math/rand"
 	"time"
 )
 
+type Tick struct {
+	Symbol    string  `json:"symbol"`
+	Price     float64 `json:"price"`
+	TimeStamp string  `json:"timestamp"`
+}
+
 func main() {
-	// STEP 1: Create Topic with AdminClient
-	conn, err := kafka.Dial("tcp", "localhost:9092")
+
+	rand.Seed(time.Now().UnixNano())
+
+	conn, err := kafka.Dial("tcp", "kafka:9092")
 	if err != nil {
 		log.Fatalf("failed to connect to Kafka: %v", err)
 	}
 	defer conn.Close()
 
-	topic := "logs"
+	topic := "market.ticks"
 	err = conn.CreateTopics(kafka.TopicConfig{
 		Topic:             topic,
 		NumPartitions:     3,
@@ -28,25 +37,35 @@ func main() {
 		log.Printf("topic %s created or already exists", topic)
 	}
 
-	// STEP 2: Set up Kafka Writer
 	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  []string{"localhost:9092"},
+		Brokers:  []string{"kafka:9092"},
 		Topic:    topic,
 		Balancer: &kafka.LeastBytes{},
 	})
 	defer writer.Close()
 
-	// STEP 3: Send Sample Messages
-	for i := 0; i < 10; i++ {
-		msg := fmt.Sprintf("log message %d", i)
-		err := writer.WriteMessages(context.Background(), kafka.Message{
-			Key:   []byte(fmt.Sprintf("key-%d", i)),
-			Value: []byte(msg),
-		})
+	symbols := []string{"SOXL", "XRP", "AAPL"}
+
+	for {
+		tick := Tick{
+			Symbol:    symbols[rand.Intn(len(symbols))],
+			Price:     10 + rand.Float64()*100,
+			TimeStamp: time.Now().UTC().Format(time.RFC3339),
+		}
+
+		data, _ := json.Marshal(tick)
+
+		err := writer.WriteMessages(
+			context.Background(),
+			kafka.Message{
+				Key:   []byte(tick.Symbol),
+				Value: data,
+			},
+		)
 		if err != nil {
-			log.Printf("failed to write message: %v", err)
+			log.Printf("failed to send tick: %v", err)
 		} else {
-			log.Printf("sent: %s", msg)
+			log.Printf("sent tick: %s", data)
 		}
 		time.Sleep(1 * time.Second)
 	}
