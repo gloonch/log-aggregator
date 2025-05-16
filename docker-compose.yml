@@ -1,4 +1,4 @@
-version: '3'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -27,16 +27,9 @@ services:
     ports:
       - "9092:9092"
 
-  producer:
+  producer-market:
     build:
-      context: .
-      dockerfile: producer/Dockerfile
-    depends_on:
-      - kafka
-
-  aggregator:
-    build:
-      context: .
-      dockerfile: producer/Dockerfile
+      context: ./producer-market
+      dockerfile: Dockerfile
     depends_on:
       - kafka

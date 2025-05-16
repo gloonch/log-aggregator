@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-WORKDIR /app/aggregator
+WORKDIR /app
 
-RUN go build -o app .
+RUN go build -o app ./cmd/
 
 CMD ["./app"]
