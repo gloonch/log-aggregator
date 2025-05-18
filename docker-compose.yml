@@ -18,7 +18,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_NUM_PARTITIONS: 3
@@ -27,9 +27,33 @@ services:
     ports:
       - "9092:9092"
 
-  producer-market:
+
+  producer-market-gold:
     build:
       context: ./producer-market
       dockerfile: Dockerfile
     depends_on:
       - kafka
+    environment:
+      SYMBOL: GOLD
+      TIMEFRAME: 1h
+
+  producer-market-silver:
+    build:
+      context: ./producer-market
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    environment:
+      SYMBOL: SILVER
+      TIMEFRAME: 4h
+
+  producer-market-iron:
+    build:
+      context: ./producer-market
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    environment:
+      SYMBOL: IRON
+      TIMEFRAME: daily
