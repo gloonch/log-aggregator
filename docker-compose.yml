@@ -23,17 +23,33 @@ services:
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
-
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     ports:
       - "9092:9092"
 
+  akhq:
+    image: tchiotludo/akhq
+    ports:
+      - "8080:8080"
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            my-cluster:
+              properties:
+                bootstrap.servers: "kafka:9092"
 
   producer-market-gold:
     build:
       context: ./producer-market
       dockerfile: Dockerfile
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       SYMBOL: GOLD
       TIMEFRAME: 1h
@@ -43,7 +59,8 @@ services:
       context: ./producer-market
       dockerfile: Dockerfile
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       SYMBOL: SILVER
       TIMEFRAME: 4h
@@ -53,7 +70,8 @@ services:
       context: ./producer-market
       dockerfile: Dockerfile
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       SYMBOL: IRON
       TIMEFRAME: daily
