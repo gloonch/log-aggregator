@@ -75,3 +75,13 @@ services:
     environment:
       SYMBOL: IRON
       TIMEFRAME: daily
+
+  consumer-market:
+    build:
+      context: ./consumer-market
+      dockerfile: Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      BROKER_ADDR: "kafka:9092"
