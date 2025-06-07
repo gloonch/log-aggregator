@@ -43,6 +43,14 @@ services:
               properties:
                 bootstrap.servers: "kafka:9092"
 
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   producer-market-gold:
     build:
       context: ./producer-market
@@ -85,3 +93,6 @@ services:
         condition: service_healthy
     environment:
       BROKER_ADDR: "kafka:9092"
+
+volumes:
+  redis-data:
