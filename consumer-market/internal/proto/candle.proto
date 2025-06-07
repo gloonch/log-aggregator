@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package candle;
+
+option go_package = "github.com/gloonch/log-aggregator/api/candlepb;pb";
+
+service CandleService {
+  rpc GetCandles (CandleQuery) returns (CandleList) {}
+}
+
+message CandleQuery {
+  string symbol = 1;
+  string timeframe = 2;
+  int64 start = 3; // unix timestamp
+  int64 end = 4;   // unix timestamp
+}
+
+message Candle {
+  string symbol = 1;
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  string start_time = 6;
+  string end_time = 7;
+}
+
+message CandleList {
+  repeated Candle candles = 1;
+}

@@ -93,6 +93,9 @@ services:
         condition: service_healthy
     environment:
       BROKER_ADDR: "kafka:9092"
+    ports:
+      - "50051:50051"
+
 
 volumes:
   redis-data:
